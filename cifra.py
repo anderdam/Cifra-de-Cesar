@@ -5,38 +5,45 @@
 #  Converter o texto em código ASCII e guardar os códigos na lista:
 
 
-def encrypt(texto_orig, key):
-    for letra in texto_orig:  # Converte cada letra do texto em ASCII
-        codigo_ascii = [ord(letra)]
-        for code in codigo_ascii:  # Pega o valor ASCII gerado e adiciona a chave para criptografar
-            coded_alfabeto = [code + key]
-            #  print(f'O código ASCII de {letra} é {codigo_ascii}: ')
-            #  print(f'O código mudou de {code} para {coded_alfabeto}: ')
-            for i in coded_alfabeto:
-                new_texto = ','.join([chr(i)])
-                print(f'O novo texto é  {new_texto} ')
-                #  return codigo_final
+#  def decrypt(texto_original, key):
 
 
-def decrypt(texto_orig, key):
-    for letra in texto_orig:  # Converte cada letra do texto em ASCII
-        codigo_ascii = [ord(letra)]
-        for code in codigo_ascii:  # Pega o valor ASCII gerado e adiciona a chave para criptografar
-            coded_alfabeto = [code - key]
-            #  print(f'O código ASCII de {letra} é {codigo_ascii}: ')
-            #  print(f'O código mudou de {code} para {coded_alfabeto}: ')
-            for i in coded_alfabeto:
-                new_texto = ','.join([chr(i)])
-                print(f'O novo texto é  {new_texto} ')
+def encriptar(mensagem_original, chave):
+    cifra = ''
 
-            # TODO: Criar regra que ao chegar na última letra, o novo código retornará para o início da tabela ASCII
+    for i in range(len(mensagem_original)):
+        char = mensagem_original[i]
+
+        if char.isupper():
+            cifra += chr((ord(char) + chave - 65) % 26 + 65)
+        else:
+            cifra += chr((ord(char) + chave - 97) % 26 + 97)
+    return cifra
 
 
-texto = input("Digite o texto que será codificado ou decodificado: ")
+def descriptografar(mensagem_original, chave):
+    cifra = ''
+
+    for i in range(len(mensagem_original)):
+        char = mensagem_original[i]
+
+        if char.isupper():
+            cifra += chr((ord(char) - chave - 65) % 26 + 65)
+        else:
+            cifra += chr((ord(char) - chave - 97) % 26 + 97)
+    return cifra
+
+
+mensagem_original = input("Digite o texto que será codificado ou decodificado: ")
 chave = int(input("Digite o valor que será utilizado como chave (1 a 26): "))
 modo = int(input("O que você deseja fazer, codificar [1] ou decodificar [2]? "))
 
 if modo == 1:
-    encrypt(texto, chave)
+    print(f'A mensagem cifrada é: {encriptar(mensagem_original, chave)}')
 elif modo == 2:
-    decrypt(texto, chave)
+    print(f'A mensagem cifrada é: {descriptografar(mensagem_original, chave)}')
+
+
+
+
+
