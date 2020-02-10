@@ -1,49 +1,91 @@
-#  Alfabeto = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',
-#               'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
-#               'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-
-#  Converter o texto em código ASCII e guardar os códigos na lista:
-
-
-#  def decrypt(texto_original, key):
+#Imports
+import requests
+import hashlib
+import json
+from json import dump, load
+from os.path import isfile
 
 
-def encriptar(mensagem_original, chave):
-    cifra = ''
+#Faz a requisição para a URL e salva os dados como json no Python
+r = requests.get('https://api.codenation.dev/v1/challenge/dev-ps/generate-data?token=55f9a57245df88f6653c40457f7ac0d5ed21c085')
+r_dict = r.json()
+dados = r_dict
 
-    for i in range(len(mensagem_original)):
-        char = mensagem_original[i]
+path = 'Json/answer.json'
 
-        if char.isupper():
-            cifra += chr((ord(char) + chave - 65) % 26 + 65)
+#Funções:
+#Cria o arquivo answer.json na pasta Json se aindas não tiver sido criado
+def criarJson(path):
+    if not isfile(path):
+        with open(path, 'w') as f:
+            dump(dados, f, indent=2)
+        return True
+    else:
+        return False
+
+
+#Função para atualizar e criar um novo answer.json
+novo_path = 'answer.json'
+def atualizarJson(novo_path):
+    if not isfile(novo_path):
+        with open(novo_path, 'w') as f:
+            dump(novos_dados, f, indent=2)
+        return True
+    else:
+        return False
+
+
+#Função para ler o arquivo answer.json
+def lerJson(path):
+    if isfile(path):
+        with open(path) as f:
+            data = load(f)
+        return data
+    else:
+        return False
+
+
+#Função para decifrar o código
+alfabeto = 'abcdefghijklmnopqrstuvwxyz'
+def decifrar(cifrado, chave):
+    m = ''
+    for c in cifrado:
+        if c in alfabeto:
+            indice = alfabeto.index(c)
+            m += alfabeto[(indice - chave) % len(alfabeto)]
         else:
-            cifra += chr((ord(char) + chave - 97) % 26 + 97)
-    return cifra
+            m += c
+    return m
 
 
-def descriptografar(mensagem_original, chave):
-    cifra = ''
+criarJson(path)
 
-    for i in range(len(mensagem_original)):
-        char = mensagem_original[i]
+#Lê o arqjuivo answer.json e cria as variáveis para decifrar o código
+answer_json = lerJson(path)
+chave = answer_json['numero_casas']
+cifrado = answer_json['cifrado']
+decifrado = decifrar(cifrado, chave)
 
-        if char.isupper():
-            cifra += chr((ord(char) - chave - 65) % 26 + 65)
-        else:
-            cifra += chr((ord(char) - chave - 97) % 26 + 97)
-    return cifra
+#  Gerar um resumo criptográfico do texto decifrado usando o algoritmo sha1
+hsh = hashlib.sha1()
+hsh.update(decifrado.encode('utf-8'))
+resumo_criptografico = hsh.hexdigest()
+
+novos_dados = {'numero_casas': chave, 'token': '55f9a57245df88f6653c40457f7ac0d5ed21c085', 'cifrado': cifrado,
+                'decifrado': decifrado, 'resumo_criptografico': resumo_criptografico}
+json_data = json.dumps(novos_dados)
+atualizarJson(novo_path)
+
+print(answer_json)
+print(chave)
+print(cifrado)
+print(decifrado)
+print(resumo_criptografico)
 
 
-mensagem_original = input("Digite o texto que será codificado ou decodificado: ")
-chave = int(input("Digite o valor que será utilizado como chave (1 a 26): "))
-modo = int(input("O que você deseja fazer, codificar [1] ou decodificar [2]? "))
-
-if modo == 1:
-    print(f'A mensagem cifrada é: {encriptar(mensagem_original, chave)}')
-elif modo == 2:
-    print(f'A mensagem cifrada é: {descriptografar(mensagem_original, chave)}')
-
-
-
-
-
+#  Faz o envio da resposta para a URL:
+""" 
+url = 'https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=55f9a57245df88f6653c40457f7ac0d5ed21c085'
+arquivo = {'answer': ('answer', open('answer.json', 'rb'))}
+envio = requests.post(url=url+token, files=arquivo) 
+"""
